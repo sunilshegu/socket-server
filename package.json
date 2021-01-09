@@ -1,5 +1,5 @@
 {
-  "name": "websockets-chat",
+  "name": "ws-server",
   "version": "1.0.0",
   "main": "handler.js",
   "scripts": {

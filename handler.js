@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const AWS = require('aws-sdk');
+const { connectHandler } = require('./src/functions/connect');
 let dynamo = new AWS.DynamoDB.DocumentClient();
 
 require('aws-sdk/clients/apigatewaymanagementapi'); 
@@ -17,21 +18,15 @@ const successfullResponse = {
 };
 
 module.exports.connectionHandler = (event, context, callback) => {
-  console.log(event);
+  const queryParams = event.queryStringParameters;
+  const { connectionId, eventType } = event.requestContext;
 
-  if (event.requestContext.eventType === 'CONNECT') {
-    // Handle connection
-    addConnection(event.requestContext.connectionId)
-      .then(() => {
-        callback(null, successfullResponse);
-      })
-      .catch(err => {
-        console.log(err);
-        callback(null, JSON.stringify(err));
-      });
-  } else if (event.requestContext.eventType === 'DISCONNECT') {
-    // Handle disconnection
-    deleteConnection(event.requestContext.connectionId)
+  if (eventType === 'CONNECT') {
+    connectHandler(connectionId, queryParams, (err) => {
+      callback(null, JSON.stringify(err));
+    });
+  } else if (eventType === 'DISCONNECT') {
+    deleteConnection(connectionId)
       .then(() => {
         callback(null, successfullResponse);
       })
@@ -98,16 +93,16 @@ const send = (event, connectionId) => {
   return apigwManagementApi.postToConnection(params).promise();
 };
 
-const addConnection = connectionId => {
-  const params = {
-    TableName: CHAT_CONNECTION_TABLE,
-    Item: {
-      connectionId: connectionId 
-    }
-  };
+// const addConnection = connectionId => {
+//   const params = {
+//     TableName: CHAT_CONNECTION_TABLE,
+//     Item: {
+//       connectionId: connectionId 
+//     }
+//   };
 
-  return dynamo.put(params).promise();
-};
+//   return dynamo.put(params).promise();
+// };
 
 const deleteConnection = connectionId => {
   const params = {
