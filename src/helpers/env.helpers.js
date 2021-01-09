@@ -1,15 +1,22 @@
-export const getRedisHost = () => {
+const getRedisHost = () => {
     return process.env.REDIS_HOST;
 }
 
-export const getRedisPort = () => {
+const getRedisPort = () => {
     return process.env.REDIS_PORT;
 }
 
-export const getRedisPassword = () => {
+const getRedisPassword = () => {
     return process.env.REDIS_PASSWORD;
 }
 
-export const getChatConnectionTableName = () => {
+const getChatConnectionTableName = () => {
     return process.env.CHAT_CONNECTION_TABLE;
+}
+
+module.exports = {
+    getRedisHost,
+    getRedisPort,
+    getRedisPassword,
+    getChatConnectionTableName
 }

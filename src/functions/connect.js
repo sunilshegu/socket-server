@@ -1,7 +1,10 @@
 const AWS = require('aws-sdk');
+const {
+    getChatConnectionTableName
+} = require('./../helpers/env.helpers');
 let dynamo = new AWS.DynamoDB.DocumentClient();
 
-export const connectHandler = (connectionId, queryParams, callback) => {
+const connectHandler = (connectionId, queryParams, callback) => {
     const {
         token,
         userId
@@ -16,7 +19,7 @@ export const connectHandler = (connectionId, queryParams, callback) => {
         callback(retObj);
     } else {
         const params = {
-            TableName: CHAT_CONNECTION_TABLE,
+            TableName: getChatConnectionTableName(),
             Item: {
                 connectionId,
                 userId
@@ -33,3 +36,7 @@ export const connectHandler = (connectionId, queryParams, callback) => {
         })
     }
 };
+
+module.exports = {
+    connectHandler
+}

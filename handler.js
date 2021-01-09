@@ -6,11 +6,12 @@ dotenv.config();
 
 const AWS = require('aws-sdk');
 const { connectHandler } = require('./src/functions/connect');
+const { getChatConnectionTableName } = require('./src/helpers/env.helpers');
 let dynamo = new AWS.DynamoDB.DocumentClient();
 
 require('aws-sdk/clients/apigatewaymanagementapi'); 
 
-const CHAT_CONNECTION_TABLE = process.env.CHAT_CONNECTION_TABLE;
+const CHAT_CONNECTION_TABLE = getChatConnectionTableName();
 
 const successfullResponse = {
   statusCode: 200,
@@ -23,7 +24,12 @@ module.exports.connectionHandler = (event, context, callback) => {
 
   if (eventType === 'CONNECT') {
     connectHandler(connectionId, queryParams, (err) => {
-      callback(null, JSON.stringify(err));
+      console.log('Connect Error==>', err);
+      if(err) {
+        callback(null, JSON.stringify(err));
+      } else {
+        callback(null, successfullResponse);
+      }
     });
   } else if (eventType === 'DISCONNECT') {
     deleteConnection(connectionId)
