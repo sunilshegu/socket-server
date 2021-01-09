@@ -1,11 +1,15 @@
 'use strict';
 
+// read env file
+const dotenv = require('dotenv');
+dotenv.config();
+
 const AWS = require('aws-sdk');
 let dynamo = new AWS.DynamoDB.DocumentClient();
 
 require('aws-sdk/clients/apigatewaymanagementapi'); 
 
-const CHATCONNECTION_TABLE = 'chatIdTable';
+const CHAT_CONNECTION_TABLE = process.env.CHAT_CONNECTION_TABLE;
 
 const successfullResponse = {
   statusCode: 200,
@@ -70,7 +74,7 @@ const sendMessageToAllConnected = (event) => {
 
 const getConnectionIds = () => {  
   const params = {
-    TableName: CHATCONNECTION_TABLE,
+    TableName: CHAT_CONNECTION_TABLE,
     ProjectionExpression: 'connectionId'
   };
 
@@ -96,7 +100,7 @@ const send = (event, connectionId) => {
 
 const addConnection = connectionId => {
   const params = {
-    TableName: CHATCONNECTION_TABLE,
+    TableName: CHAT_CONNECTION_TABLE,
     Item: {
       connectionId: connectionId 
     }
@@ -107,7 +111,7 @@ const addConnection = connectionId => {
 
 const deleteConnection = connectionId => {
   const params = {
-    TableName: CHATCONNECTION_TABLE,
+    TableName: CHAT_CONNECTION_TABLE,
     Key: {
       connectionId: connectionId 
     }

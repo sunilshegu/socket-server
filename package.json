@@ -10,7 +10,8 @@
   "keywords": [],
   "description": "",
   "dependencies": {
-    "aws-sdk": "^2.404.0",
+    "aws-sdk": "^2.814.0",
+    "dotenv": "^8.2.0",
     "serverless-websockets-plugin": "^1.0.0"
   }
 }
