@@ -12,6 +12,7 @@
   "dependencies": {
     "aws-sdk": "^2.814.0",
     "dotenv": "^8.2.0",
+    "redis": "^3.0.2",
     "serverless-websockets-plugin": "^1.0.0"
   }
 }
