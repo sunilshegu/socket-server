@@ -45,17 +45,6 @@ const deleteConnection = (connectionId, callback) => {
             });
         }
     });
-
-    dynamo.delete(params, (err) => {
-        if (err) {
-            retObj.status = 500;
-            retObj.message = 'Error deleting connection';
-        } else {
-            retObj.status = 200;
-            retObj.message = 'Successfully deleted';
-        }
-        callback(retObj);
-    });
 };
 
 module.exports = {
