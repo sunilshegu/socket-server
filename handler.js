@@ -82,15 +82,3 @@ const send = (event, connectionId) => {
   };
   return apigwManagementApi.postToConnection(params).promise();
 };
-
-// const addConnection = connectionId => {
-//   const params = {
-//     TableName: CHAT_CONNECTION_TABLE,
-//     Item: {
-//       connectionId: connectionId 
-//     }
-//   };
-
-//   return dynamo.put(params).promise();
-// };
-
