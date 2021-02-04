@@ -4,6 +4,7 @@ provider:
   name: aws
   stage: ${opt:stage, 'dev'}
   runtime: nodejs12.x
+  timeout: 300
   vpc:
     securityGroupIds:
       - sg-03b610b5e95fa7be8

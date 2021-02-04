@@ -21,10 +21,8 @@ const openConnection = (connectionId, queryParams, callback) => {
         retObj.message = 'Invalid userId';
         callback(retObj);
     } else {
-        console.log("1-----redis--connection")
         const redisClient = getRedisClient();
         redisClient.get(token, (err, data) => {
-            console.log("2---after connection", err, data);
             redisClient.end(true);
             if (err) {
                 retObj.message = 'Error while authenticating';
