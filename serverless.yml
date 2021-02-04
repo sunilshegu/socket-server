@@ -1,10 +1,32 @@
-service: ws-server 
+service: ws-server
 
 provider:
   name: aws
   stage: ${opt:stage, 'dev'}
   runtime: nodejs12.x
+  vpc:
+    securityGroupIds:
+      - sg-03b610b5e95fa7be8
+    subnetIds:
+      - subnet-4470fc65
+      - subnet-81fd7ce7
+      - subnet-e64d36e8
+      - subnet-05429734
+      - subnet-1086d75d
+      - subnet-134ac84c
   iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "logs:CreateLogStream"
+        - "logs:CreateLogGroup"
+        - "logs:PutLogEvents"
+        - "ec2:CreateNetworkInterface"
+        - "ec2:DescribeNetworkInterfaces"
+        - "ec2:DeleteNetworkInterface"
+        - "ec2:AssignPrivateIpAddresses"
+        - "ec2:UnassignPrivateIpAddresses"
+      Resource:
+        - "*"
     - Effect: Allow
       Action:
         - "dynamodb:PutItem"

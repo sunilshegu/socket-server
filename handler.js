@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const AWS = require('aws-sdk');
-const { connectHandler } = require('./src/functions/connect');
+const { openConnection } = require('./src/functions/connect');
 const { deleteConnection } = require('./src/functions/disconnect');
 const { getChatConnectionTableName } = require('./src/helpers/env.helpers');
 let dynamo = new AWS.DynamoDB.DocumentClient();
@@ -34,7 +34,7 @@ module.exports.connectionHandler = (event, _, callback) => {
   }
 };
 
-module.exports.defaultHandler = (_, _, callback) => {
+module.exports.defaultHandler = (event, _, callback) => {
   callback(null, {
     statusCode: 200,
     body: 'defaultHandler'

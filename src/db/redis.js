@@ -1,11 +1,10 @@
 const redis = require('redis');
-const { getRedisHost, getRedisPort } = require('../helpers/env.helpers');
+const { getRedisURL } = require('../helpers/env.helpers');
 
-redisClient = redis.createClient({
-    port: getRedisHost(),
-    host: getRedisPort(),
-});
+const getRedisClient = () => {
+    return redis.createClient(getRedisURL());
+}
 
 module.exports = {
-    redisClient
+    getRedisClient
 };

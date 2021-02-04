@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk');
 const {
-    redisClient
+    getRedisClient
 } = require('../db/redis');
 const {
     getChatConnectionTableName
@@ -21,7 +21,11 @@ const openConnection = (connectionId, queryParams, callback) => {
         retObj.message = 'Invalid userId';
         callback(retObj);
     } else {
+        console.log("1-----redis--connection")
+        const redisClient = getRedisClient();
         redisClient.get(token, (err, data) => {
+            console.log("2---after connection", err, data);
+            redisClient.end(true);
             if (err) {
                 retObj.message = 'Error while authenticating';
                 callback(retObj);
@@ -43,7 +47,7 @@ const openConnection = (connectionId, queryParams, callback) => {
                         callback(retObj);
                     } else {
                         retObj.message = 'Successfully connected';
-                        callback(null);
+                        callback(retObj);
                     }
                 })
             }
