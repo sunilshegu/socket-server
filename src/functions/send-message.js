@@ -26,16 +26,16 @@ const sendMessage = (body, callback) => {
     const { senderId, targetId, message } = data;
 
     if (!senderId) {
-        retObj.status = 400;
-        retObj.message = 'Invalid sender Id';
+        retObj.statusCode = 400;
+        retObj.body = 'Invalid sender Id';
         callback(retObj);
     } else if (!targetId) {
-        retObj.status = 400;
-        retObj.message = 'Invalid target user Id';
+        retObj.statusCode = 400;
+        retObj.body = 'Invalid target user Id';
         callback(retObj);
     } else if (!message) {
-        retObj.status = 400;
-        retObj.message = 'Invalid message';
+        retObj.statusCode = 400;
+        retObj.body = 'Invalid message';
         callback(retObj);
     } else {
         const findTargetUserParams = {
@@ -48,21 +48,21 @@ const sendMessage = (body, callback) => {
 
         dynamo.query(findTargetUserParams, (err, data) => {
             if (err) {
-                retObj.status = 500;
-                retObj.message = 'Error while querying dynamodb';
+                retObj.statusCode = 500;
+                retObj.body = 'Error while querying dynamodb';
                 callback(retObj);
             } else if (data && data.Items && data.Items.length) {
                 send({}, data.Items[0].connectionId).then(() => {
-                    retObj.status = 200;
-                    retObj.message = 'Successfully sent';
+                    retObj.statusCode = 200;
+                    retObj.body = 'Successfully sent';
                     callback(retObj);
                 }).catch((err) => {
-                    retObj.status = 500;
-                    retObj.message = 'Error while posting message to connection';
+                    retObj.statusCode = 500;
+                    retObj.body = 'Error while posting message to connection';
                 })
             } else {
-                retObj.status = 200;
-                retObj.message = 'Target user not registered';
+                retObj.statusCode = 200;
+                retObj.body = 'Target user not registered';
                 callback(retObj);
             }
         });

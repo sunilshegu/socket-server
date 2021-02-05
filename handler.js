@@ -36,6 +36,7 @@ module.exports.connectionHandler = (event, _, callback) => {
 };
 
 module.exports.defaultHandler = (event, _, callback) => {
+  console.log('defatul==>', event)
   callback(null, {
     statusCode: 200,
     body: 'defaultHandler'
