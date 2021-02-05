@@ -8,6 +8,7 @@ const AWS = require('aws-sdk');
 const { openConnection } = require('./src/functions/connect');
 const { deleteConnection } = require('./src/functions/disconnect');
 const { getChatConnectionTableName } = require('./src/helpers/env.helpers');
+const { sendMessage } = require('./src/functions/send-message');
 let dynamo = new AWS.DynamoDB.DocumentClient();
 
 require('aws-sdk/clients/apigatewaymanagementapi'); 
@@ -42,43 +43,6 @@ module.exports.defaultHandler = (event, _, callback) => {
 };
 
 module.exports.sendMessageHandler = (event, _, callback) => {
-  sendMessageToAllConnected(event).then(() => {
-    callback(null, successfulResponse)
-  }).catch (err => {
-    callback(null, JSON.stringify(err));
-  });
+  console.log("sendMessage Event Body=====>", typeof event.body, event.body)
+  callback(null, successfulResponse);
 }
-
-const sendMessageToAllConnected = (event) => {
-  return getConnectionIds().then(connectionData => {
-    return connectionData.Items.map(connectionId => {
-      return send(event, connectionId.connectionId);
-    });
-  });
-}
-
-const getConnectionIds = () => {  
-  const params = {
-    TableName: CHAT_CONNECTION_TABLE,
-    ProjectionExpression: 'connectionId'
-  };
-
-  return dynamo.scan(params).promise();
-}
-
-const send = (event, connectionId) => {
-  const body = JSON.parse(event.body);
-  const postData = body.data;  
-
-  const endpoint = event.requestContext.domainName + "/" + event.requestContext.stage;
-  const apigwManagementApi = new AWS.ApiGatewayManagementApi({
-    apiVersion: "2018-11-29",
-    endpoint: endpoint
-  });
-
-  const params = {
-    ConnectionId: connectionId,
-    Data: postData
-  };
-  return apigwManagementApi.postToConnection(params).promise();
-};
