@@ -26,6 +26,7 @@ module.exports.connectionHandler = (event, _, callback) => {
 
   if (eventType === 'CONNECT') {
     openConnection(connectionId, queryParams, (result) => {
+      console.log("result===>", result)
       callback(null, result);
     });
   } else if (eventType === 'DISCONNECT') {
@@ -36,7 +37,6 @@ module.exports.connectionHandler = (event, _, callback) => {
 };
 
 module.exports.defaultHandler = (event, _, callback) => {
-  console.log('defatul==>', event)
   callback(null, {
     statusCode: 200,
     body: 'defaultHandler'
@@ -44,6 +44,13 @@ module.exports.defaultHandler = (event, _, callback) => {
 };
 
 module.exports.sendMessageHandler = (event, _, callback) => {
-  console.log("sendMessage Event Body=====>", typeof event.body, event.body)
-  callback(null, successfulResponse);
+  sendMessage(JSON.parse(event.body), (smResult) => {
+    callback(null, smResult);
+  });
 }
+
+
+
+
+
+

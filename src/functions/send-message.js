@@ -4,26 +4,29 @@ const {
     getChatConnectionTableName
 } = require('./../helpers/env.helpers');
 
-const send = (jsonData, connectionId) => {
-    const endpoint = 'ciu7j53cd3.execute-api.us-east-1.amazonaws.com/dev';
+const send = (jsonData, connectionId, callback) => {
+    const endpoint = 'https://ciu7j53cd3.execute-api.us-east-1.amazonaws.com/dev';
     const apigwManagementApi = new AWS.ApiGatewayManagementApi({
-      apiVersion: "2018-11-29",
-      endpoint: endpoint
+        apiVersion: "2018-11-29",
+        endpoint: endpoint
     });
-  
+
     const params = {
-      ConnectionId: connectionId,
-      Data: {
-        hello: 'pollo'
-      }
+        ConnectionId: connectionId,
+        Data: "Hello"
     };
-    return apigwManagementApi.postToConnection(params).promise();
+    console.log("send connectionId===>", params);
+    apigwManagementApi.postToConnection(params, (err, data) => {
+        console.log("post conn==>", err, data)
+        callback(err, data);
+    });
 };
 
 const sendMessage = (body, callback) => {
     const retObj = {};
     const { data } = body;
     const { senderId, targetId, message } = data;
+    console.log("smdata===>", data);
 
     if (!senderId) {
         retObj.statusCode = 400;
@@ -40,28 +43,33 @@ const sendMessage = (body, callback) => {
     } else {
         const findTargetUserParams = {
             TableName: getChatConnectionTableName(),
-            KeyConditionExpression: "userId = :userIdValue",
-            ExpressionAttributeValues: {
-                ":userIdValue": targetId,
+            Key: {
+                userId: targetId.toString()
             }
         };
 
-        dynamo.query(findTargetUserParams, (err, data) => {
+        dynamo.get(findTargetUserParams, (err, data) => {
+            console.log("dynamo===>", err, data, findTargetUserParams);
             if (err) {
                 retObj.statusCode = 500;
                 retObj.body = 'Error while querying dynamodb';
                 callback(retObj);
-            } else if (data && data.Items && data.Items.length) {
-                send({}, data.Items[0].connectionId).then(() => {
-                    retObj.statusCode = 200;
-                    retObj.body = 'Successfully sent';
-                    callback(retObj);
-                }).catch((err) => {
-                    retObj.statusCode = 500;
-                    retObj.body = 'Error while posting message to connection';
-                })
+            } else if (data && data.Item && data.Item.connectionId) {
+                send({}, data.Item.connectionId, (err, data) => {
+                    if (err) {
+                        console.log("send message err====>", err)
+                        retObj.statusCode = 500;
+                        retObj.body = 'Error while posting message to connection';
+                        callback(retObj);
+                    } else {
+                        console.log("------success-----", data)
+                        retObj.statusCode = 200;
+                        retObj.body = 'Successfully sent';
+                        callback(retObj);
+                    }
+                });
             } else {
-                retObj.statusCode = 200;
+                retObj.statusCode = 400;
                 retObj.body = 'Target user not registered';
                 callback(retObj);
             }
@@ -69,6 +77,6 @@ const sendMessage = (body, callback) => {
     }
 }
 
-module.exports  = {
+module.exports = {
     sendMessage
 }
