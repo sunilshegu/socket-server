@@ -2,19 +2,17 @@ service: ws-server
 
 provider:
   name: aws
+  region: ap-south-1
   stage: ${opt:stage, 'dev'}
   runtime: nodejs12.x
   timeout: 300
   vpc:
     securityGroupIds:
-      - sg-03b610b5e95fa7be8
+      - sg-039edbcf6f355f142
     subnetIds:
-      - subnet-4470fc65
-      - subnet-81fd7ce7
-      - subnet-e64d36e8
-      - subnet-05429734
-      - subnet-1086d75d
-      - subnet-134ac84c
+      - subnet-074a7de849ee29a5e
+      - subnet-02b4a66e25a58549f
+      - subnet-0a4b1db72376fcd89
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -68,10 +66,19 @@ resources:
       Type: "AWS::DynamoDB::Table"
       Properties:
         AttributeDefinitions:
-        - AttributeName: "userId"
-          AttributeType: "S"
+          - AttributeName: "userId"
+            AttributeType: "S"
+          - AttributeName: "connectionId"
+            AttributeType: "S"
         KeySchema:
-        - AttributeName: "userId"
-          KeyType: "HASH"
+          - AttributeName: "userId"
+            KeyType: "HASH"
+        GlobalSecondaryIndexes:
+          - IndexName: connection-id-gsi
+            KeySchema:
+              - AttributeName: connectionId
+                KeyType: HASH
+            Projection:
+              ProjectionType: 'ALL'
         BillingMode: PAY_PER_REQUEST
         TableName: ${opt:stage}-connection-ddb

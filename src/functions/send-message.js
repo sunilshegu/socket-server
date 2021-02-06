@@ -4,8 +4,8 @@ const {
     getChatConnectionTableName
 } = require('./../helpers/env.helpers');
 
-const send = (jsonData, connectionId, callback) => {
-    const endpoint = 'https://ciu7j53cd3.execute-api.us-east-1.amazonaws.com/dev';
+const send = (msgStr, connectionId, callback) => {
+    const endpoint = 'https://29b5xrp9cb.execute-api.ap-south-1.amazonaws.com/prod';
     const apigwManagementApi = new AWS.ApiGatewayManagementApi({
         apiVersion: "2018-11-29",
         endpoint: endpoint
@@ -13,11 +13,9 @@ const send = (jsonData, connectionId, callback) => {
 
     const params = {
         ConnectionId: connectionId,
-        Data: "Hello"
+        Data: msgStr
     };
-    console.log("send connectionId===>", params);
     apigwManagementApi.postToConnection(params, (err, data) => {
-        console.log("post conn==>", err, data)
         callback(err, data);
     });
 };
@@ -48,14 +46,14 @@ const sendMessage = (body, callback) => {
             }
         };
 
-        dynamo.get(findTargetUserParams, (err, data) => {
-            console.log("dynamo===>", err, data, findTargetUserParams);
+        dynamo.get(findTargetUserParams, (err, getDataRes) => {
+            console.log("dynamo===>", err, getDataRes, findTargetUserParams);
             if (err) {
                 retObj.statusCode = 500;
                 retObj.body = 'Error while querying dynamodb';
                 callback(retObj);
-            } else if (data && data.Item && data.Item.connectionId) {
-                send({}, data.Item.connectionId, (err, data) => {
+            } else if (getDataRes && getDataRes.Item && getDataRes.Item.connectionId) {
+                send(message, getDataRes.Item.connectionId, (err, data) => {
                     if (err) {
                         console.log("send message err====>", err)
                         retObj.statusCode = 500;

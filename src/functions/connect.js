@@ -5,6 +5,8 @@ const {
 const {
     getChatConnectionTableName
 } = require('./../helpers/env.helpers');
+
+AWS.config.update({ region: 'ap-south-1' });
 let dynamo = new AWS.DynamoDB.DocumentClient();
 
 const openConnection = (connectionId, queryParams, callback) => {
@@ -56,7 +58,6 @@ const openConnection = (connectionId, queryParams, callback) => {
                 })
             }
         });
-
     }
 };
 
