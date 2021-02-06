@@ -15,7 +15,7 @@ const send = (msgStr, connectionId, callback) => {
         ConnectionId: connectionId,
         Data: msgStr
     };
-    
+
     apigwManagementApi.postToConnection(params, (err, data) => {
         callback(err, data);
     });
@@ -25,7 +25,6 @@ const sendMessage = (body, callback) => {
     const retObj = {};
     const { data } = body;
     const { senderId, targetId, message } = data;
-    console.log("smdata===>", data);
 
     if (!senderId) {
         retObj.statusCode = 400;
@@ -48,7 +47,6 @@ const sendMessage = (body, callback) => {
         };
 
         dynamo.get(findTargetUserParams, (err, getDataRes) => {
-            console.log("dynamo===>", err, getDataRes, findTargetUserParams);
             if (err) {
                 retObj.statusCode = 500;
                 retObj.body = 'Error while querying dynamodb';
@@ -56,12 +54,10 @@ const sendMessage = (body, callback) => {
             } else if (getDataRes && getDataRes.Item && getDataRes.Item.connectionId) {
                 send(JSON.stringify(data), getDataRes.Item.connectionId, (err, data) => {
                     if (err) {
-                        console.log("send message err====>", err)
                         retObj.statusCode = 500;
                         retObj.body = 'Error while posting message to connection';
                         callback(retObj);
                     } else {
-                        console.log("------success-----", data)
                         retObj.statusCode = 200;
                         retObj.body = 'Successfully sent';
                         callback(retObj);
