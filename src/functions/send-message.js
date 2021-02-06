@@ -15,6 +15,7 @@ const send = (msgStr, connectionId, callback) => {
         ConnectionId: connectionId,
         Data: msgStr
     };
+    
     apigwManagementApi.postToConnection(params, (err, data) => {
         callback(err, data);
     });
@@ -53,7 +54,7 @@ const sendMessage = (body, callback) => {
                 retObj.body = 'Error while querying dynamodb';
                 callback(retObj);
             } else if (getDataRes && getDataRes.Item && getDataRes.Item.connectionId) {
-                send(message, getDataRes.Item.connectionId, (err, data) => {
+                send(JSON.stringify(data), getDataRes.Item.connectionId, (err, data) => {
                     if (err) {
                         console.log("send message err====>", err)
                         retObj.statusCode = 500;
