@@ -14,9 +14,14 @@ const getEndpointURL = () => {
     return process.env.ENDPOINT_URL;
 }
 
+const getAppURL = () => {
+    return process.env.APP_URL;
+}
+
 module.exports = {
     getRedisURL,
     getChatConnectionTableName,
     getChatConnectionIdGSI,
-    getEndpointURL
+    getEndpointURL,
+    getAppURL
 }

@@ -2,7 +2,8 @@ const AWS = require('aws-sdk');
 let dynamo = new AWS.DynamoDB.DocumentClient();
 const {
     getChatConnectionTableName,
-    getEndpointURL
+    getEndpointURL,
+    getAppURL
 } = require('./../helpers/env.helpers');
 
 const send = (msgStr, connectionId, callback) => {
@@ -23,6 +24,20 @@ const send = (msgStr, connectionId, callback) => {
         callback(err, data);
     });
 };
+
+const saveMessage = (senderId, targetId, msgStr, token, timestampMillis) => {
+    return axios({
+        method: 'post',
+        url: getAppURL() + '/doChat',
+        data: {
+            userId: senderId,
+            profileId: targetId,
+            message: msgStr,
+            token: token,
+            timeStamp: timestampMillis
+        }
+    });
+}
 
 const sendMessage = (body, callback) => {
     const retObj = {};
@@ -61,22 +76,30 @@ const sendMessage = (body, callback) => {
                 retObj.statusCode = 500;
                 retObj.body = 'Error while querying dynamodb';
                 callback(retObj);
-            } else if (getDataRes && getDataRes.Item && getDataRes.Item.connectionId) {
-                send(JSON.stringify(data), getDataRes.Item.connectionId, (err, data) => {
-                    if (err) {
-                        retObj.statusCode = 500;
-                        retObj.body = 'Error while posting message to connection';
-                        callback(retObj);
-                    } else {
-                        retObj.statusCode = 200;
-                        retObj.body = 'Successfully sent';
-                        callback(retObj);
-                    }
-                });
             } else {
-                retObj.statusCode = 400;
-                retObj.body = 'Target user not registered';
-                callback(retObj);
+                saveMessage(senderId, targetId, message, token, new Date()-0).then((res)=> {
+                    console.log("Success saving message");
+                }, (err) => {
+                    console.log("Error while saving message", err, body);
+                });
+
+                if (getDataRes && getDataRes.Item && getDataRes.Item.connectionId) {
+                    send(JSON.stringify(data), getDataRes.Item.connectionId, (err, data) => {
+                        if (err) {
+                            retObj.statusCode = 500;
+                            retObj.body = 'Error while posting message to connection';
+                            callback(retObj);
+                        } else {
+                            retObj.statusCode = 200;
+                            retObj.body = 'Successfully sent';
+                            callback(retObj);
+                        }
+                    });
+                } else {
+                    retObj.statusCode = 200;
+                    retObj.body = 'Target user not registered';
+                    callback(retObj);
+                }
             }
         });
     }
