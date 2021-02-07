@@ -29,7 +29,7 @@ const send = (msgStr, connectionId, callback) => {
 const saveMessage = (senderId, targetId, msgStr, token, timestampMillis) => {
     return axios({
         method: 'post',
-        url: getAppURL() + '/doMessage',
+        url: getAppURL() + '/doChat',
         headers: {
             Authorization: token
         },
@@ -37,8 +37,6 @@ const saveMessage = (senderId, targetId, msgStr, token, timestampMillis) => {
             userId: senderId,
             profileId: targetId,
             message: msgStr,
-            token: token,
-            timeStamp: timestampMillis
         }
     });
 }
