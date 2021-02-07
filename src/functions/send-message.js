@@ -1,4 +1,5 @@
 const AWS = require('aws-sdk');
+const axios = require('axios');
 let dynamo = new AWS.DynamoDB.DocumentClient();
 const {
     getChatConnectionTableName,
@@ -28,7 +29,10 @@ const send = (msgStr, connectionId, callback) => {
 const saveMessage = (senderId, targetId, msgStr, token, timestampMillis) => {
     return axios({
         method: 'post',
-        url: getAppURL() + '/doChat',
+        url: getAppURL() + '/doMessage',
+        headers: {
+            Authorization: token
+        },
         data: {
             userId: senderId,
             profileId: targetId,
@@ -42,7 +46,7 @@ const saveMessage = (senderId, targetId, msgStr, token, timestampMillis) => {
 const sendMessage = (body, callback) => {
     const retObj = {};
     const { data } = body;
-    const { senderId, targetId, message } = data;
+    const { senderId, targetId, message, token } = data;
 
     console.log("data==>", data)
     if (!senderId) {
@@ -78,7 +82,7 @@ const sendMessage = (body, callback) => {
                 callback(retObj);
             } else {
                 saveMessage(senderId, targetId, message, token, new Date()-0).then((res)=> {
-                    console.log("Success saving message");
+                    console.log("Success saving message", res);
                 }, (err) => {
                     console.log("Error while saving message", err, body);
                 });
