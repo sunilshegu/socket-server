@@ -1,7 +1,8 @@
 const AWS = require('aws-sdk');
 let dynamo = new AWS.DynamoDB.DocumentClient();
 const {
-    getChatConnectionTableName
+    getChatConnectionTableName,
+    getChatConnectionIdGSI
 } = require('./../helpers/env.helpers');
 
 const deleteConnection = (connectionId, callback) => {
@@ -17,12 +18,12 @@ const deleteConnection = (connectionId, callback) => {
 
     dynamo.query(findConnRecordParams, (err, data) => {
         if (err) {
-            retObj.status = 500;
-            retObj.message = 'Error deleting connection';
+            retObj.statusCode = 500;
+            retObj.body = 'Error deleting connection';
             callback(retObj);
         } else if (!data.Items.length) {
-            retObj.status = 404;
-            retObj.message = 'Connection not found';
+            retObj.statusCode = 404;
+            retObj.body = 'Connection not found';
             callback(retObj)
         } else {
             const deleteConnParams = {
@@ -34,27 +35,16 @@ const deleteConnection = (connectionId, callback) => {
 
             dynamo.delete(deleteConnParams, (err) => {
                 if (err) {
-                    retObj.status = 500;
-                    retObj.message = 'Error deleting connection';
+                    retObj.statusCode = 500;
+                    retObj.body = 'Error deleting connection';
                     callback(retObj);
                 } else {
-                    retObj.status = 200;
-                    retObj.message = 'Successfully deleted';
+                    retObj.statusCode = 200;
+                    retObj.body = 'Successfully deleted';
                     callback(retObj);
                 }
             });
         }
-    });
-
-    dynamo.delete(params, (err) => {
-        if (err) {
-            retObj.status = 500;
-            retObj.message = 'Error deleting connection';
-        } else {
-            retObj.status = 200;
-            retObj.message = 'Successfully deleted';
-        }
-        callback(retObj);
     });
 };
 

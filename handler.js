@@ -5,9 +5,10 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const AWS = require('aws-sdk');
-const { connectHandler } = require('./src/functions/connect');
+const { openConnection } = require('./src/functions/connect');
 const { deleteConnection } = require('./src/functions/disconnect');
 const { getChatConnectionTableName } = require('./src/helpers/env.helpers');
+const { sendMessage } = require('./src/functions/send-message');
 let dynamo = new AWS.DynamoDB.DocumentClient();
 
 require('aws-sdk/clients/apigatewaymanagementapi'); 
@@ -34,7 +35,7 @@ module.exports.connectionHandler = (event, _, callback) => {
   }
 };
 
-module.exports.defaultHandler = (_, _, callback) => {
+module.exports.defaultHandler = (event, _, callback) => {
   callback(null, {
     statusCode: 200,
     body: 'defaultHandler'
@@ -42,55 +43,13 @@ module.exports.defaultHandler = (_, _, callback) => {
 };
 
 module.exports.sendMessageHandler = (event, _, callback) => {
-  sendMessageToAllConnected(event).then(() => {
-    callback(null, successfulResponse)
-  }).catch (err => {
-    callback(null, JSON.stringify(err));
+  sendMessage(JSON.parse(event.body), (smResult) => {
+    callback(null, smResult);
   });
 }
 
-const sendMessageToAllConnected = (event) => {
-  return getConnectionIds().then(connectionData => {
-    return connectionData.Items.map(connectionId => {
-      return send(event, connectionId.connectionId);
-    });
-  });
-}
 
-const getConnectionIds = () => {  
-  const params = {
-    TableName: CHAT_CONNECTION_TABLE,
-    ProjectionExpression: 'connectionId'
-  };
 
-  return dynamo.scan(params).promise();
-}
 
-const send = (event, connectionId) => {
-  const body = JSON.parse(event.body);
-  const postData = body.data;  
 
-  const endpoint = event.requestContext.domainName + "/" + event.requestContext.stage;
-  const apigwManagementApi = new AWS.ApiGatewayManagementApi({
-    apiVersion: "2018-11-29",
-    endpoint: endpoint
-  });
-
-  const params = {
-    ConnectionId: connectionId,
-    Data: postData
-  };
-  return apigwManagementApi.postToConnection(params).promise();
-};
-
-// const addConnection = connectionId => {
-//   const params = {
-//     TableName: CHAT_CONNECTION_TABLE,
-//     Item: {
-//       connectionId: connectionId 
-//     }
-//   };
-
-//   return dynamo.put(params).promise();
-// };
 

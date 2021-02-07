@@ -14,5 +14,8 @@
     "dotenv": "^8.2.0",
     "redis": "^3.0.2",
     "serverless-websockets-plugin": "^1.0.0"
+  },
+  "devDependencies": {
+    "serverless-domain-manager": "^5.1.0"
   }
 }

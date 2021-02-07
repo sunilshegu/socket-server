@@ -1,9 +1,5 @@
-const getRedisHost = () => {
-    return process.env.REDIS_HOST;
-}
-
-const getRedisPort = () => {
-    return process.env.REDIS_PORT;
+const getRedisURL = () => {
+    return process.env.REDIS_URL;
 }
 
 const getChatConnectionTableName = () => {
@@ -14,9 +10,13 @@ const getChatConnectionIdGSI = () => {
     return process.env.CHAT_CONNECTION_ID_GSI;
 }
 
+const getEndpointURL = () => {
+    return process.env.ENDPOINT_URL;
+}
+
 module.exports = {
-    getRedisHost,
-    getRedisPort,
+    getRedisURL,
     getChatConnectionTableName,
-    getChatConnectionIdGSI
+    getChatConnectionIdGSI,
+    getEndpointURL
 }

@@ -1,14 +1,49 @@
-service: ws-server 
+service: ws-server
+
+plugins:
+  - serverless-domain-manager
+
+custom:
+  customDomain:
+    websocket:
+      domainName: ws.app.wavelengthmatch.com
+      stage: ${opt:stage}
+      endpointType: 'regional'
+      apiType: websocket
+      certificateName: app.wavelengthmatch.com
+      createRoute53Record: true
 
 provider:
   name: aws
+  region: ap-south-1
   stage: ${opt:stage, 'dev'}
   runtime: nodejs12.x
+  timeout: 300
+  vpc:
+    securityGroupIds:
+      - sg-039edbcf6f355f142
+    subnetIds:
+      - subnet-074a7de849ee29a5e
+      - subnet-02b4a66e25a58549f
+      - subnet-0a4b1db72376fcd89
   iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "logs:CreateLogStream"
+        - "logs:CreateLogGroup"
+        - "logs:PutLogEvents"
+        - "ec2:CreateNetworkInterface"
+        - "ec2:DescribeNetworkInterfaces"
+        - "ec2:DeleteNetworkInterface"
+        - "ec2:AssignPrivateIpAddresses"
+        - "ec2:UnassignPrivateIpAddresses"
+      Resource:
+        - "*"
     - Effect: Allow
       Action:
         - "dynamodb:PutItem"
         - "dynamodb:GetItem"
+        - "dynamodb:Query"
         - "dynamodb:DeleteItem"
         - "dynamodb:Scan"
       Resource:
@@ -44,10 +79,19 @@ resources:
       Type: "AWS::DynamoDB::Table"
       Properties:
         AttributeDefinitions:
-        - AttributeName: "userId"
-          AttributeType: "S"
+          - AttributeName: "userId"
+            AttributeType: "S"
+          - AttributeName: "connectionId"
+            AttributeType: "S"
         KeySchema:
-        - AttributeName: "userId"
-          KeyType: "HASH"
+          - AttributeName: "userId"
+            KeyType: "HASH"
+        GlobalSecondaryIndexes:
+          - IndexName: connection-id-gsi
+            KeySchema:
+              - AttributeName: connectionId
+                KeyType: HASH
+            Projection:
+              ProjectionType: 'ALL'
         BillingMode: PAY_PER_REQUEST
         TableName: ${opt:stage}-connection-ddb

@@ -1,10 +1,12 @@
 const AWS = require('aws-sdk');
 const {
-    redisClient
+    getRedisClient
 } = require('../db/redis');
 const {
     getChatConnectionTableName
 } = require('./../helpers/env.helpers');
+
+AWS.config.update({ region: 'ap-south-1' });
 let dynamo = new AWS.DynamoDB.DocumentClient();
 
 const openConnection = (connectionId, queryParams, callback) => {
@@ -15,18 +17,24 @@ const openConnection = (connectionId, queryParams, callback) => {
     const retObj = {};
 
     if (!token) {
-        retObj.message = 'Invalid token';
+        retObj.statusCode = 400;
+        retObj.body = 'Invalid token';
         callback(retObj);
     } else if (!userId) {
-        retObj.message = 'Invalid userId';
+        retObj.statusCode = 400;
+        retObj.body = 'Invalid userId';
         callback(retObj);
     } else {
+        const redisClient = getRedisClient();
         redisClient.get(token, (err, data) => {
+            redisClient.end(true);
             if (err) {
-                retObj.message = 'Error while authenticating';
+                retObj.statusCode = 500;
+                retObj.body = 'Error while authenticating';
                 callback(retObj);
             } else if (!data) {
-                retObj.message = 'Invalid token';
+                retObj.statusCode = 400;
+                retObj.body = 'Invalid token';
                 callback(retObj);
             } else {
                 const params = {
@@ -39,16 +47,17 @@ const openConnection = (connectionId, queryParams, callback) => {
 
                 dynamo.put(params, (err, _) => {
                     if (err) {
-                        retObj.message = 'Error inserting in DB';
+                        retObj.statusCode = 500;
+                        retObj.body = 'Error inserting in DB';
                         callback(retObj);
                     } else {
-                        retObj.message = 'Successfully connected';
-                        callback(null);
+                        retObj.statusCode = 200;
+                        retObj.body = 'Successfully connected';
+                        callback(retObj);
                     }
                 })
             }
         });
-
     }
 };
 
