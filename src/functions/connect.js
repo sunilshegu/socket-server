@@ -16,6 +16,7 @@ const openConnection = (connectionId, queryParams, callback) => {
     } = queryParams;
     const retObj = {};
 
+    console.log("input===>", token, userId)
     if (!token) {
         retObj.statusCode = 400;
         retObj.body = 'Invalid token';
@@ -26,7 +27,9 @@ const openConnection = (connectionId, queryParams, callback) => {
         callback(retObj);
     } else {
         const redisClient = getRedisClient();
+        console.log("redis start===>")
         redisClient.get(token, (err, data) => {
+            console.log("redis end===>", err, data)
             redisClient.end(true);
             if (err) {
                 retObj.statusCode = 500;
@@ -45,7 +48,9 @@ const openConnection = (connectionId, queryParams, callback) => {
                     }
                 };
 
+                console.log("dynamodb start===>")
                 dynamo.put(params, (err, _) => {
+                    console.log("dynamodb end===>")
                     if (err) {
                         retObj.statusCode = 500;
                         retObj.body = 'Error inserting in DB';

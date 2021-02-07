@@ -17,7 +17,9 @@ const send = (msgStr, connectionId, callback) => {
         Data: msgStr
     };
 
+    console.log("send start==>");
     apigwManagementApi.postToConnection(params, (err, data) => {
+        console.log("send end==>", err, data);
         callback(err, data);
     });
 };
@@ -27,19 +29,24 @@ const sendMessage = (body, callback) => {
     const { data } = body;
     const { senderId, targetId, message } = data;
 
+    console.log("data==>", data)
     if (!senderId) {
+        console.log("senderId==>", senderId)
         retObj.statusCode = 400;
         retObj.body = 'Invalid sender Id';
         callback(retObj);
     } else if (!targetId) {
+        console.log("targetId==>", targetId)
         retObj.statusCode = 400;
         retObj.body = 'Invalid target user Id';
         callback(retObj);
     } else if (!message) {
+        console.log("message==>", message)
         retObj.statusCode = 400;
         retObj.body = 'Invalid message';
         callback(retObj);
     } else {
+        console.log("====>else")
         const findTargetUserParams = {
             TableName: getChatConnectionTableName(),
             Key: {
@@ -47,7 +54,9 @@ const sendMessage = (body, callback) => {
             }
         };
 
+        console.log("dynamodb start")
         dynamo.get(findTargetUserParams, (err, getDataRes) => {
+            console.log("dynamodb end", err, getDataRes)
             if (err) {
                 retObj.statusCode = 500;
                 retObj.body = 'Error while querying dynamodb';
