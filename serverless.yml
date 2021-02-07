@@ -1,5 +1,18 @@
 service: ws-server
 
+plugins:
+  - serverless-domain-manager
+
+custom:
+  customDomain:
+    websocket:
+      domainName: ws.app.wavelengthmatch.com
+      stage: ${opt:stage}
+      endpointType: 'regional'
+      apiType: websocket
+      certificateName: app.wavelengthmatch.com
+      createRoute53Record: true
+
 provider:
   name: aws
   region: ap-south-1

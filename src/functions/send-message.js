@@ -1,11 +1,12 @@
 const AWS = require('aws-sdk');
 let dynamo = new AWS.DynamoDB.DocumentClient();
 const {
-    getChatConnectionTableName
+    getChatConnectionTableName,
+    getEndpointURL
 } = require('./../helpers/env.helpers');
 
 const send = (msgStr, connectionId, callback) => {
-    const endpoint = 'https://29b5xrp9cb.execute-api.ap-south-1.amazonaws.com/prod';
+    const endpoint = getEndpointURL();
     const apigwManagementApi = new AWS.ApiGatewayManagementApi({
         apiVersion: "2018-11-29",
         endpoint: endpoint
