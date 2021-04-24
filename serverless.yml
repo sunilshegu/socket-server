@@ -6,11 +6,11 @@ plugins:
 custom:
   customDomain:
     websocket:
-      domainName: ws.app.wavelengthmatch.com
+      domainName: ws.wavelengthmatch.com
       stage: ${opt:stage}
       endpointType: 'regional'
       apiType: websocket
-      certificateName: app.wavelengthmatch.com
+      certificateName: ws.wavelengthmatch.com
       createRoute53Record: true
 
 provider:
@@ -19,13 +19,13 @@ provider:
   stage: ${opt:stage, 'dev'}
   runtime: nodejs12.x
   timeout: 300
-  vpc:
-    securityGroupIds:
-      - sg-039edbcf6f355f142
-    subnetIds:
-      - subnet-074a7de849ee29a5e
-      - subnet-02b4a66e25a58549f
-      - subnet-0a4b1db72376fcd89
+  # vpc:
+  #   securityGroupIds:
+  #     - sg-039edbcf6f355f142
+  #   subnetIds:
+  #     - subnet-074a7de849ee29a5e
+  #     - subnet-02b4a66e25a58549f
+  #     - subnet-0a4b1db72376fcd89
   iamRoleStatements:
     - Effect: Allow
       Action:

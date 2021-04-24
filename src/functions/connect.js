@@ -28,7 +28,7 @@ const openConnection = (connectionId, queryParams, callback) => {
     } else {
         const redisClient = getRedisClient();
         console.log("redis start===>")
-        redisClient.get(token, (err, data) => {
+        redisClient.hget(token, 'user', (err, data) => {
             console.log("redis end===>", err, data)
             redisClient.end(true);
             if (err) {

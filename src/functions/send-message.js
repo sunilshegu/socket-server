@@ -26,20 +26,20 @@ const send = (msgStr, connectionId, callback) => {
     });
 };
 
-const saveMessage = (senderId, targetId, msgStr, token, timestampMillis) => {
-    return axios({
-        method: 'post',
-        url: getAppURL() + '/doChat',
-        headers: {
-            Authorization: token
-        },
-        data: {
-            userId: senderId,
-            profileId: targetId,
-            message: msgStr,
-        }
-    });
-}
+// const saveMessage = (senderId, targetId, msgStr, token, timestampMillis) => {
+//     return axios({
+//         method: 'post',
+//         url: getAppURL() + '/doChat',
+//         headers: {
+//             Authorization: token
+//         },
+//         data: {
+//             userId: senderId,
+//             profileId: targetId,
+//             message: msgStr,
+//         }
+//     });
+// }
 
 const sendMessage = (body, callback) => {
     const retObj = {};
@@ -79,11 +79,11 @@ const sendMessage = (body, callback) => {
                 retObj.body = 'Error while querying dynamodb';
                 callback(retObj);
             } else {
-                saveMessage(senderId, targetId, message, token, new Date()-0).then((res)=> {
-                    console.log("Success saving message", res);
-                }, (err) => {
-                    console.log("Error while saving message", err, body);
-                });
+                // saveMessage(senderId, targetId, message, token, new Date()-0).then((res)=> {
+                //     console.log("Success saving message", res);
+                // }, (err) => {
+                //     console.log("Error while saving message", err, body);
+                // });
 
                 if (getDataRes && getDataRes.Item && getDataRes.Item.connectionId) {
                     send(JSON.stringify(data), getDataRes.Item.connectionId, (err, data) => {
